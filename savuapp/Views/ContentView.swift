@@ -17,7 +17,7 @@ struct ContentView: View {
                 .fontWeight(.bold)
                 .font(.largeTitle)
 
-            Text("Welcome to Savu")
+            Text("This is profile")
                 .font(.title3)
                 .foregroundStyle(.secondary)
         }
