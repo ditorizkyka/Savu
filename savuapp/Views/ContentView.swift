@@ -14,8 +14,8 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
 
             Text("Hello, World!")
-                .font(.largeTitle)
                 .fontWeight(.bold)
+                .font(.largeTitle)
 
             Text("Welcome to Savu")
                 .font(.title3)
