@@ -8,18 +8,23 @@
 import SwiftUI
 
 struct ContentView: View {
+
+    let diContainer: AppDIContainer
+
+    @State private var notesViewModel: NotesViewModel?
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-            //tesgithub
+        NavigationStack {
+            HomeView(diContainer: diContainer)
         }
-        .padding()
+        .task {
+            if notesViewModel == nil {
+                notesViewModel = diContainer.makeNotesViewModel()
+            }
+        }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(diContainer: .preview)
 }
