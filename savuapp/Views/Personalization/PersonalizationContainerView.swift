@@ -1,10 +1,10 @@
 import SwiftUI
 
-// HAPUS class PersonalizationData di sini — sudah dipindah ke PersonalizationData.swift
-
 struct PersonalizationContainerView: View {
-    @StateObject var data = PersonalizationData()
+    @StateObject var viewModel = PersonalizationViewModel()
     @State private var currentStep: Int = 1
+    @State private var isMovingForward: Bool = true
+    @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
     let totalSteps = 3
 
@@ -12,8 +12,14 @@ struct PersonalizationContainerView: View {
         VStack(spacing: 0) {
             HStack {
                 Button(action: {
-                    if currentStep == 1 { dismiss() }
-                    else { withAnimation { currentStep -= 1 } }
+                    if currentStep == 1 {
+                        dismiss()
+                    } else {
+                        isMovingForward = false
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            currentStep -= 1
+                        }
+                    }
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .semibold))
@@ -32,7 +38,7 @@ struct PersonalizationContainerView: View {
             HStack(spacing: 6) {
                 ForEach(1...totalSteps, id: \.self) { step in
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(step <= currentStep ? Color.blue : Color(.systemGray4))
+                        .fill(step <= currentStep ? AppTheme.Colors.primary : Color(.systemGray4))
                         .frame(height: 5)
                         .animation(.easeInOut, value: currentStep)
                 }
@@ -42,17 +48,25 @@ struct PersonalizationContainerView: View {
 
             Group {
                 if currentStep == 1 {
-                    Question1View(data: data, currentStep: $currentStep)
+                    Question1View(data: viewModel, currentStep: $currentStep, onDirectionChange: { dir in
+                        isMovingForward = dir
+                    })
                 } else if currentStep == 2 {
-                    Question2View(data: data, currentStep: $currentStep)
+                    Question2View(data: viewModel, currentStep: $currentStep, onDirectionChange: { dir in
+                        isMovingForward = dir
+                    })
                 } else {
-                    Question3View(data: data, currentStep: $currentStep)
+                    Question3View(data: viewModel, currentStep: $currentStep, onFinish: {
+                        appState.isOnboardingComplete = true
+                    }, onDirectionChange: { dir in
+                        isMovingForward = dir
+                    })
                 }
             }
             .transition(
                 .asymmetric(
-                    insertion: .move(edge: .trailing),
-                    removal: .move(edge: .leading)
+                    insertion: .move(edge: isMovingForward ? .trailing : .leading),
+                    removal: .move(edge: isMovingForward ? .leading : .trailing)
                 )
             )
             .animation(.easeInOut(duration: 0.3), value: currentStep)
@@ -61,4 +75,3 @@ struct PersonalizationContainerView: View {
         .background(Color.white)
     }
 }
-

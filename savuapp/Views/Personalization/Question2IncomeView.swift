@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct Question2View: View {
-    @ObservedObject var data: PersonalizationData
+    @ObservedObject var data: PersonalizationViewModel
     @Binding var currentStep: Int
     @State private var isExpanded = false
+    var onDirectionChange: ((Bool) -> Void)? = nil
     
     let incomeOptions = [
         "Less than Rp3,000,000",
@@ -82,12 +83,12 @@ struct Question2View: View {
             
             Spacer()
             
-            
             // Bottom Buttons
             BottomNavButtons(
                 currentStep: $currentStep,
                 canGoNext: !data.selectedIncome.isEmpty,
-                totalSteps: 3
+                totalSteps: 3,
+                onDirectionChange: onDirectionChange
             )
         }.navigationBarBackButtonHidden(true)
     }

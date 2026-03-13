@@ -58,22 +58,6 @@ struct OnboardingView: View {
     }
 }
 
-struct WaveShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: 0, y: 0))
-        path.addLine(to: CGPoint(x: rect.width, y: 0))
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height - 50))
-        path.addQuadCurve(
-            to: CGPoint(x: 0, y: rect.height - 50),
-            control: CGPoint(x: rect.width / 2, y: rect.height + 30)
-        )
-        path.closeSubpath()
-        return path
-    }
-}
-
 #Preview {
     OnboardingView()
 }
-

@@ -1,10 +1,3 @@
-//
-//  BottomNavButtons.swift
-//  savuapp
-//
-//  Created by Andito Rizkyka Rianto on 13/03/26.
-//
-
 import SwiftUI
 
 struct BottomNavButtons: View {
@@ -12,6 +5,7 @@ struct BottomNavButtons: View {
     var canGoNext: Bool
     var totalSteps: Int
     var onFinish: (() -> Void)? = nil
+    var onDirectionChange: ((Bool) -> Void)? = nil
 
     var isFirstStep: Bool { currentStep == 1 }
     var isLastStep: Bool { currentStep == totalSteps }
@@ -20,8 +14,11 @@ struct BottomNavButtons: View {
         HStack(spacing: 12) {
             // Previous
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    if currentStep > 1 { currentStep -= 1 }
+                if currentStep > 1 {
+                    onDirectionChange?(false)
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        currentStep -= 1
+                    }
                 }
             }) {
                 Text("Previous")
@@ -40,6 +37,7 @@ struct BottomNavButtons: View {
                 if isLastStep {
                     onFinish?()
                 } else {
+                    onDirectionChange?(true)
                     withAnimation(.easeInOut(duration: 0.3)) {
                         currentStep += 1
                     }

@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct Question3View: View {
-    @ObservedObject var data: PersonalizationData
+    @ObservedObject var data: PersonalizationViewModel
     @Binding var currentStep: Int
     @State private var isExpanded: Bool = true
     var onFinish: (() -> Void)? = nil
+    var onDirectionChange: ((Bool) -> Void)? = nil
 
     let expenseOptions = [
         "Less than Rp1,000,000",
@@ -109,14 +110,15 @@ struct Question3View: View {
                 currentStep: $currentStep,
                 canGoNext: !data.selectedExpense.isEmpty,
                 totalSteps: 3,
-                onFinish: onFinish
+                onFinish: onFinish,
+                onDirectionChange: onDirectionChange
             )
         }.navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview("Question 3") {
-    let data = PersonalizationData()
+    let data = PersonalizationViewModel()
     data.selectedExpense = "Rp1,000,000 – Rp3,000,000"
     return NavigationStack {
         VStack(spacing: 0) {

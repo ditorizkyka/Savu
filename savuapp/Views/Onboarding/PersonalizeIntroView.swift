@@ -12,14 +12,10 @@ struct PersonalizeIntroView: View {
     
     var body: some View {
         VStack(spacing: 50) {
-//            Spacer()
-            
             // Avatar placeholder
             Circle()
                 .fill(Color(.systemGray4))
                 .frame(width: 220, height: 220)
-            
-//            Spacer()
             
             VStack(spacing: 12) {
                 Text("Let's Personalize Your Financial Experience")
@@ -32,8 +28,6 @@ struct PersonalizeIntroView: View {
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 32)
-            
-//            Spacer()
             
             NavigationLink(destination: PersonalizationContainerView()) {
                 Text("Start Personalization")

@@ -1,12 +1,6 @@
 // MARK: - Imports
 import SwiftUI
 
-// MARK: - Supporting Types
-enum TransactionType: String, CaseIterable {
-    case income = "Income"
-    case expenses = "Expenses"
-}
-
 // MARK: - Main Type Declaration
 struct AddTransactionView: View {
     // MARK: - Properties
