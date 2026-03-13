@@ -65,11 +65,11 @@ extension TransactionView {
     
     private var summaryCard: some View {
         HStack(spacing: 0) {
-            summaryItem(label: "Income", amount: "Rp3.000.000", color: AppTheme.Colors.primary)
+            summaryItem(label: "Income", amount: viewModel.formattedIncome, color: AppTheme.Colors.primary)
             Divider().frame(height: 30).padding(.horizontal, 10)
-            summaryItem(label: "Expense", amount: "Rp500.000", color: .red)
+            summaryItem(label: "Expense", amount: viewModel.formattedExpense, color: .red)
             Divider().frame(height: 30).padding(.horizontal, 10)
-            summaryItem(label: "Total", amount: "+Rp2.500.000", color: .green)
+            summaryItem(label: "Total", amount: viewModel.formattedTotal, color: viewModel.totalBalance >= 0 ? .green : .red)
         }
         .padding(.vertical, 10)
     }

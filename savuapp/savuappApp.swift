@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct savuappApp: App {
     @StateObject private var appState = AppState()
+    @StateObject private var userStore = UserStore.shared
 
     var body: some Scene {
         WindowGroup {
@@ -21,6 +22,7 @@ struct savuappApp: App {
                 }
             }
             .environmentObject(appState)
+            .environmentObject(userStore)
         }
     }
 }

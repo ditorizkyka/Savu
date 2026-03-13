@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Question3View: View {
+struct Question4View: View {
     @ObservedObject var data: PersonalizationViewModel
     @Binding var currentStep: Int
     @State private var isExpanded: Bool = true
@@ -19,7 +19,7 @@ struct Question3View: View {
         VStack(alignment: .leading, spacing: 0) {
             // Question Header
             VStack(alignment: .leading, spacing: 6) {
-                Text("Question 3")
+                Text("Question 4")
                     .font(.system(size: 24, weight: .bold))
                 
                 Text("What are your total fixed monthly expenses?")
@@ -109,7 +109,7 @@ struct Question3View: View {
             BottomNavButtons(
                 currentStep: $currentStep,
                 canGoNext: !data.selectedExpense.isEmpty,
-                totalSteps: 3,
+                totalSteps: 4,
                 onFinish: onFinish,
                 onDirectionChange: onDirectionChange
             )

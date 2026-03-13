@@ -6,18 +6,22 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct PersonalizeIntroView: View {
     @Environment(\.dismiss) var dismiss
+    // 1. Kamu harus buat variabel pemicu ini
+        @State private var isAnimating = false
+//    let animationData: Data =
     
     var body: some View {
-        VStack(spacing: 50) {
+        VStack(spacing: 45) {
             // Avatar placeholder
-            Circle()
-                .fill(Color(.systemGray4))
-                .frame(width: 220, height: 220)
+            LottieView(animation: .named("start-personalize-animation")) // Nama file tanpa .json
+                            .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
+                            .frame(width: 250, height: 250)
             
-            VStack(spacing: 12) {
+            VStack(spacing:25) {
                 Text("Let's Personalize Your Financial Experience")
                     .font(.system(size: 22, weight: .bold))
                     .multilineTextAlignment(.center)

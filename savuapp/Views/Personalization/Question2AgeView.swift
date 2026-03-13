@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Question1View: View {
+struct Question2View: View {
     @ObservedObject var data: PersonalizationViewModel
     @Binding var currentStep: Int
     var onDirectionChange: ((Bool) -> Void)? = nil
@@ -12,7 +12,7 @@ struct Question1View: View {
             
             // Question Header
             VStack(alignment: .leading, spacing: 6) {
-                Text("Question 1")
+                Text("Question 2")
                     .font(AppTheme.Typography.title2)
                 
                 Text("What is your range of age?")
@@ -74,7 +74,7 @@ struct Question1View: View {
             BottomNavButtons(
                 currentStep: $currentStep,
                 canGoNext: !data.selectedAge.isEmpty,
-                totalSteps: 3,
+                totalSteps: 4,
                 onDirectionChange: onDirectionChange
             )
         }

@@ -4,16 +4,28 @@ struct PersonalizationContainerView: View {
     @StateObject var viewModel = PersonalizationViewModel()
     @State private var currentStep: Int = 1
     @State private var isMovingForward: Bool = true
+    @State private var navigateToLoading: Bool = false
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var userStore: UserStore
     @Environment(\.dismiss) var dismiss
-    let totalSteps = 3
+    let totalSteps = 4
+
+    /// When true, pre-fills from UserStore (re-personalization mode)
+    var isRepersonalizing: Bool = false
+
+    /// Closure to dismiss the entire fullScreenCover (re-personalization only)
+    var dismissAll: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Button(action: {
                     if currentStep == 1 {
-                        dismiss()
+                        if isRepersonalizing {
+                            dismissAll?()
+                        } else {
+                            dismiss()
+                        }
                     } else {
                         isMovingForward = false
                         withAnimation(.easeInOut(duration: 0.3)) {
@@ -55,9 +67,14 @@ struct PersonalizationContainerView: View {
                     Question2View(data: viewModel, currentStep: $currentStep, onDirectionChange: { dir in
                         isMovingForward = dir
                     })
+                } else if currentStep == 3 {
+                    Question3View(data: viewModel, currentStep: $currentStep, onDirectionChange: { dir in
+                        isMovingForward = dir
+                    })
                 } else {
-                    Question3View(data: viewModel, currentStep: $currentStep, onFinish: {
-                        appState.isOnboardingComplete = true
+                    Question4View(data: viewModel, currentStep: $currentStep, onFinish: {
+                        userStore.savePersonalization(from: viewModel)
+                        navigateToLoading = true
                     }, onDirectionChange: { dir in
                         isMovingForward = dir
                     })
@@ -72,6 +89,20 @@ struct PersonalizationContainerView: View {
             .animation(.easeInOut(duration: 0.3), value: currentStep)
         }
         .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white)
+        .onAppear {
+            if isRepersonalizing {
+                userStore.loadInto(vm: viewModel)
+            }
+        }
+        .navigationDestination(isPresented: $navigateToLoading) {
+            PersonalizeLoadingView(
+                isRepersonalizing: isRepersonalizing,
+                dismissAll: dismissAll
+            )
+            .navigationBarBackButtonHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }

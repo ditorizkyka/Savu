@@ -61,15 +61,15 @@ private struct GlassTabBar: View {
         .background {
             ZStack {
                 // Frosted glass layer
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
                     .fill(.ultraThinMaterial)
 
                 // Subtle white overlay for brightness
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
                     .fill(Color.white.opacity(0.55))
 
                 // Hair-line border
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
                     .strokeBorder(Color.white.opacity(0.6), lineWidth: 0.5)
             }
             .shadow(color: Color(red: 0.12, green: 0.20, blue: 0.58).opacity(0.10), radius: 24, x: 0, y: 8)
@@ -105,7 +105,7 @@ struct MainTabView: View {
 
             // ── Floating glass bar ────────────────────────────────────────────
             GlassTabBar(selectedTab: $selectedTab)
-                .padding(.bottom, 24)
+                .padding(.bottom, 22)
         }
         .ignoresSafeArea(edges: .bottom)
     }

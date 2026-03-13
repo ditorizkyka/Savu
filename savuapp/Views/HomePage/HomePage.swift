@@ -5,22 +5,50 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
+    @State private var showAddTransaction = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                headerSection
-                balanceCard
-                incomeExpenseRow
-                savingsProgressSection
-                recentTransactionsSection
+        ZStack(alignment: .bottomTrailing) {
+            ScrollView {
+                VStack(spacing: 20) {
+                    headerSection
+                    balanceCard
+                    incomeExpenseRow
+                    savingsProgressSection
+                    recentTransactionsSection
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 120)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 32)
+            .background(Color(.systemGroupedBackground))
+
+            // MARK: - Floating Action Button
+            Button(action: { showAddTransaction = true }) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [AppTheme.Colors.primary, AppTheme.Colors.primary.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 60, height: 60)
+                        .shadow(color: AppTheme.Colors.primary.opacity(0.4), radius: 12, x: 0, y: 6)
+
+                    Image(systemName: "plus")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.trailing, 24)
+            .padding(.bottom, 90)
         }
-        .background(Color(.systemGroupedBackground))
         .navigationBarHidden(true)
+        .navigationDestination(isPresented: $showAddTransaction) {
+            AddTransactionView(store: viewModel.store)
+        }
     }
 
     // MARK: - Header
@@ -171,46 +199,62 @@ struct HomeView: View {
                     .foregroundColor(AppTheme.Colors.primary)
             }
 
-            VStack(spacing: 0) {
-                ForEach(viewModel.recentTransactions) { item in
-                    HStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(item.isExpense ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
-                                .frame(width: 40, height: 40)
-                            Image(systemName: item.iconName)
-                                .font(.system(size: 16))
+            if viewModel.recentTransactions.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "tray")
+                        .font(.system(size: 32))
+                        .foregroundColor(AppTheme.Colors.textSecondary)
+                    Text("No transactions yet")
+                        .font(AppTheme.Typography.caption)
+                        .foregroundColor(AppTheme.Colors.textSecondary)
+                    Text("Tap + to add your first transaction")
+                        .font(AppTheme.Typography.small)
+                        .foregroundColor(AppTheme.Colors.textDisabled)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(viewModel.recentTransactions) { item in
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(item.isExpense ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                                    .frame(width: 40, height: 40)
+                                Image(systemName: item.iconName)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(item.isExpense ? .red : .green)
+                            }
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(item.title)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .lineLimit(1)
+                                HStack(spacing: 6) {
+                                    Text(item.category)
+                                        .font(.system(size: 11))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(AppTheme.Colors.light)
+                                        .foregroundColor(AppTheme.Colors.primary)
+                                        .cornerRadius(4)
+                                    Text(item.formattedTime)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(AppTheme.Colors.textSecondary)
+                                }
+                            }
+
+                            Spacer()
+
+                            Text(item.formattedAmount)
+                                .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(item.isExpense ? .red : .green)
                         }
+                        .padding(.vertical, 12)
 
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(item.title)
-                                .font(.system(size: 14, weight: .medium))
-                                .lineLimit(1)
-                            HStack(spacing: 6) {
-                                Text(item.category)
-                                    .font(.system(size: 11))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(AppTheme.Colors.light)
-                                    .foregroundColor(AppTheme.Colors.primary)
-                                    .cornerRadius(4)
-                                Text(item.date)
-                                    .font(.system(size: 11))
-                                    .foregroundColor(AppTheme.Colors.textSecondary)
-                            }
+                        if item.id != viewModel.recentTransactions.last?.id {
+                            Divider()
                         }
-
-                        Spacer()
-
-                        Text(item.formattedAmount)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(item.isExpense ? .red : .green)
-                    }
-                    .padding(.vertical, 12)
-
-                    if item.id != viewModel.recentTransactions.last?.id {
-                        Divider()
                     }
                 }
             }
@@ -234,5 +278,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    NavigationStack {
+        HomeView()
+    }
 }
