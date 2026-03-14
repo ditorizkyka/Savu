@@ -14,25 +14,20 @@ final class AddTransactionViewModel: ObservableObject {
     @Published var showCategoryPicker: Bool = false
 
     // MARK: - Category Options
-    let incomeCategories: [(name: String, icon: String)] = [
-        ("Salary", "banknote"),
-        ("Freelance", "laptopcomputer"),
-        ("Investment", "chart.line.uptrend.xyaxis"),
-        ("Gift", "gift"),
-        ("Work", "briefcase"),
-        ("Other", "ellipsis.circle"),
-    ]
+    var incomeCategories: [(name: String, icon: String)] = []
+    var expenseCategories: [(name: String, icon: String)] = []
 
-    let expenseCategories: [(name: String, icon: String)] = [
-        ("Food & Beverages", "fork.knife"),
-        ("Transport", "car.fill"),
-        ("Shopping", "cart"),
-        ("Entertainment", "gamecontroller"),
-        ("Healthcare", "heart"),
-        ("Home & Utilities", "house"),
-        ("Education", "graduationcap"),
-        ("Other", "ellipsis.circle"),
-    ]
+    init() {
+        self.loadCategories()
+    }
+
+    func loadCategories() {
+        let savedIncome = CategoryViewModel.load(key: CategoryViewModel.incomeKey) ?? CategoryViewModel.defaultIncomeCategories
+        self.incomeCategories = savedIncome.map { ($0.name, $0.iconName) }
+        
+        let savedExpense = CategoryViewModel.load(key: CategoryViewModel.expenseKey) ?? CategoryViewModel.defaultExpenseCategories
+        self.expenseCategories = savedExpense.map { ($0.name, $0.iconName) }
+    }
 
     var currentCategories: [(name: String, icon: String)] {
         selectedType == .income ? incomeCategories : expenseCategories

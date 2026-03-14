@@ -14,11 +14,11 @@ final class CategoryViewModel: ObservableObject {
     @Published var expenseCategories: [Category] = []
 
     // MARK: - UserDefaults Keys
-    private let incomeKey = "savu_income_categories"
-    private let expenseKey = "savu_expense_categories"
+    static let incomeKey = "savu_income_categories"
+    static let expenseKey = "savu_expense_categories"
 
     // MARK: - Default Categories
-    private static let defaultIncomeCategories: [Category] = [
+    static let defaultIncomeCategories: [Category] = [
         Category(name: "Salary",         iconName: "banknote",     type: .income),
         Category(name: "Freelance",      iconName: "laptopcomputer", type: .income),
         Category(name: "Investment",     iconName: "chart.line.uptrend.xyaxis", type: .income),
@@ -27,7 +27,7 @@ final class CategoryViewModel: ObservableObject {
         Category(name: "Other",          iconName: "ellipsis.circle", type: .income),
     ]
 
-    private static let defaultExpenseCategories: [Category] = [
+    static let defaultExpenseCategories: [Category] = [
         Category(name: "Food & Beverages", iconName: "fork.knife",  type: .expense),
         Category(name: "Shopping",         iconName: "cart",         type: .expense),
         Category(name: "Transportation",   iconName: "car",          type: .expense),
@@ -40,8 +40,8 @@ final class CategoryViewModel: ObservableObject {
 
     // MARK: - Init
     init() {
-        self.incomeCategories = Self.load(key: incomeKey) ?? Self.defaultIncomeCategories
-        self.expenseCategories = Self.load(key: expenseKey) ?? Self.defaultExpenseCategories
+        self.incomeCategories = Self.load(key: Self.incomeKey) ?? Self.defaultIncomeCategories
+        self.expenseCategories = Self.load(key: Self.expenseKey) ?? Self.defaultExpenseCategories
     }
 
     var activeCategories: [Category] {
@@ -71,14 +71,14 @@ final class CategoryViewModel: ObservableObject {
 
     private func save() {
         if let incData = try? JSONEncoder().encode(incomeCategories) {
-            UserDefaults.standard.set(incData, forKey: incomeKey)
+            UserDefaults.standard.set(incData, forKey: Self.incomeKey)
         }
         if let expData = try? JSONEncoder().encode(expenseCategories) {
-            UserDefaults.standard.set(expData, forKey: expenseKey)
+            UserDefaults.standard.set(expData, forKey: Self.expenseKey)
         }
     }
 
-    private static func load(key: String) -> [Category]? {
+    static func load(key: String) -> [Category]? {
         guard let data = UserDefaults.standard.data(forKey: key),
               let decoded = try? JSONDecoder().decode([Category].self, from: data) else {
             return nil

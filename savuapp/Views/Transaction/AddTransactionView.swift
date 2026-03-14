@@ -54,6 +54,9 @@ struct AddTransactionView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarHidden(true)
+        .onAppear {
+            viewModel.loadCategories()
+        }
     }
 
     // MARK: - Header
