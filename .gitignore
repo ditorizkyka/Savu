@@ -1,0 +1,5 @@
+# Local secrets
+savuapp/Secrets.plist
+
+# Keep safe template in repo
+!savuapp/Secrets.example.plist
