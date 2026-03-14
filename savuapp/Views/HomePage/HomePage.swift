@@ -6,6 +6,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @State private var showAddTransaction = false
+    @State private var showTodaysWrap = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -52,6 +53,9 @@ struct HomeView: View {
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $showAddTransaction) {
             AddTransactionView(store: viewModel.store)
+        }
+        .fullScreenCover(isPresented: $showTodaysWrap) {
+            TodaysWrapView()
         }
         .onAppear {
             // Reinforce glass tab bar appearance
@@ -166,8 +170,9 @@ struct HomeView: View {
                 .foregroundColor(AppTheme.Colors.textPrimary)
 
             // Suggestion Card with blue-to-gold gradient matching mockup
-            ZStack(alignment: .bottomTrailing) {
-                // Gradient background
+            Button(action: { showTodaysWrap = true }) {
+                ZStack(alignment: .bottomTrailing) {
+                    // Gradient background
                 LinearGradient(
                     stops: [
                         Gradient.Stop(color: Color(red: 0.12, green: 0.15, blue: 0.25), location: 0.0),
@@ -211,6 +216,8 @@ struct HomeView: View {
             }
             .frame(height: 140)
             .cornerRadius(16)
+            }
+            .buttonStyle(.plain)
         }
     }
 
