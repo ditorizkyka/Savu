@@ -6,18 +6,22 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @State private var showAddTransaction = false
-    @State private var showTodaysWrap = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
-                VStack(spacing: 20) {
-                    headerSection
-                    balanceCard
-                    incomeExpenseRow
-                    savingsProgressSection
-                    recentTransactionsSection
-                    debugSection
+                VStack(spacing: 0) {
+                    // Dark navy header area
+                    headerAndBalanceSection
+
+                    // Content below header
+                    VStack(spacing: 20) {
+                        suggestionSection
+                        overviewSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    .padding(.bottom, 120)
                 }
             }
             .background(Color(.systemGroupedBackground))
@@ -49,76 +53,15 @@ struct HomeView: View {
         .navigationDestination(isPresented: $showAddTransaction) {
             AddTransactionView(store: viewModel.store)
         }
-        .fullScreenCover(isPresented: $showTodaysWrap) {
-            TodaysWrapView()
+        .onAppear {
+            // Reinforce glass tab bar appearance
+            let appearance = UITabBarAppearance()
+            appearance.configureWithTransparentBackground()
+            appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+            appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.3)
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
         }
-    }
-
-    // MARK: - Header
-    private var headerSection: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Good \(greetingTime),")
-                    .font(AppTheme.Typography.subheadline)
-                    .foregroundColor(AppTheme.Colors.textSecondary)
-                Text(viewModel.userName)
-                    .font(AppTheme.Typography.title2)
-                    .foregroundColor(AppTheme.Colors.textPrimary)
-            }
-            Spacer()
-            
-            HStack(spacing: 12) {
-                // Today's wrap entry point
-                Button(action: { showTodaysWrap = true }) {
-                    ZStack {
-                        Circle()
-                            .fill(AppTheme.Colors.light)
-                            .frame(width: 44, height: 44)
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 18))
-                            .foregroundColor(.orange)
-                    }
-                }
-                
-                // Notifications
-                ZStack {
-                    Circle()
-                        .fill(AppTheme.Colors.light)
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "bell")
-                        .font(.system(size: 18))
-                        .foregroundColor(AppTheme.Colors.primary)
-                }
-            }
-        }
-        .padding(.top, 8)
-    }
-
-    // MARK: - Balance Card
-    private var balanceCard: some View {
-        VStack(spacing: 8) {
-            Text("Total Balance")
-                .font(AppTheme.Typography.caption)
-                .foregroundColor(.white.opacity(0.8))
-            Text(viewModel.formattedBalance)
-                .font(.system(size: 32, weight: .bold))
-                .foregroundColor(.white)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 28)
-        .background(
-            LinearGradient(
-                stops: [
-                    Gradient.Stop(color: Color(red: 0, green: 0.22, blue: 0.68), location: 0.00),
-                    Gradient.Stop(color: Color(red: 0, green: 0.3, blue: 0.9), location: 0.82),
-                    Gradient.Stop(color: Color(red: 0.1, green: 0.4, blue: 1.0), location: 1.00),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .cornerRadius(AppTheme.Radius.lg)
-        .shadow(color: AppTheme.Colors.primary.opacity(0.25), radius: 12, x: 0, y: 6)
     }
 
     // MARK: - Header + Balance (Dark Navy Section)
@@ -356,40 +299,6 @@ struct HomeView: View {
             .background(AppTheme.Colors.cardBackground)
             .cornerRadius(AppTheme.Radius.card)
             .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
-        }
-    }
-
-    // MARK: - Debug Section (Temporary)
-    private var debugSection: some View {
-        VStack(spacing: 16) {
-            Button(action: {
-                TransactionSeeder.seedData(into: viewModel.store)
-            }) {
-                Text("Seed Temporary Data")
-                    .font(AppTheme.Typography.bodyMedium)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.gray)
-                    .cornerRadius(8)
-            }
-            
-            Button(action: {
-                showTodaysWrap = true
-            }) {
-                HStack {
-                    Image(systemName: "sparkles")
-                    Text("Generate AI Wrap")
-                }
-                .font(AppTheme.Typography.bodyMedium)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing)
-                )
-                .cornerRadius(8)
-            }
         }
     }
 
