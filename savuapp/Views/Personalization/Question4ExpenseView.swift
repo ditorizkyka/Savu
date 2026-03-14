@@ -24,7 +24,7 @@ struct Question4View: View {
                 
                 Text("What are your total fixed monthly expenses?")
                     .font(.system(size: 16))
-                    .foregroundColor(.black)
+                    .foregroundColor(AppTheme.Colors.textPrimary)
                 
                 Text("*Choose only 1 answer that suits you")
                     .font(.system(size: 13))
@@ -74,7 +74,7 @@ struct Question4View: View {
                                     Text(option)
                                         .font(.system(size: 15))
                                         .foregroundColor(
-                                            data.selectedExpense == option ? AppTheme.Colors.primary : .black
+                                            data.selectedExpense == option ? AppTheme.Colors.primary : AppTheme.Colors.textPrimary
                                         )
                                     Spacer()
                                 }
@@ -83,7 +83,7 @@ struct Question4View: View {
                                 .background(
                                     data.selectedExpense == option
                                         ? Color.blue.opacity(0.08)
-                                        : Color.white
+                                        : AppTheme.Colors.background
                                 )
                             }
 
@@ -92,7 +92,7 @@ struct Question4View: View {
                             }
                         }
                     }
-                    .background(Color.white)
+                    .background(AppTheme.Colors.cardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color(.systemGray4), lineWidth: 1.2)

@@ -72,7 +72,7 @@ struct SettingsView: View {
                 .padding(.bottom, 6)
 
             VStack(spacing: 0) { content() }
-                .background(Color.white)
+                .background(AppTheme.Colors.cardBackground)
                 .cornerRadius(14)
                 .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         }

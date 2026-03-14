@@ -124,7 +124,7 @@ struct ProfileView: View {
             Divider().padding(.leading, 52)
             menuRow(icon: "questionmark.circle",  label: "Tutorial")               {}
         }
-        .background(Color.white)
+        .background(AppTheme.Colors.cardBackground)
         .cornerRadius(14)
         .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 2)
     }

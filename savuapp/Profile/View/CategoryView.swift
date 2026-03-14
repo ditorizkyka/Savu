@@ -55,7 +55,7 @@ struct CategoryView: View {
                         }
                     }
                 }
-                .background(Color.white)
+                .background(AppTheme.Colors.cardBackground)
                 .cornerRadius(14)
                 .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
                 .padding(.horizontal, 16)
@@ -112,9 +112,10 @@ struct CategoryView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("About Categories")
                     .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(AppTheme.Colors.textPrimary)
                 Text("Organise your finances by grouping transactions. Clear categories help you track where your money goes and identify your primary income sources at a glance.")
                     .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.Colors.textSecondary)
                     .lineSpacing(3)
             }
             Spacer()
@@ -123,14 +124,14 @@ struct CategoryView: View {
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppTheme.Colors.textSecondary)
             }
         }
         .padding(14)
-        .background(Color(hex: "F0F4FF"))
+        .background(AppTheme.Colors.cardBackground)
         .cornerRadius(12)
         .overlay(RoundedRectangle(cornerRadius: 12)
-            .stroke(Color(hex: "4A6CF7").opacity(0.2), lineWidth: 1))
+            .stroke(AppTheme.Colors.primary.opacity(0.2), lineWidth: 1))
     }
 
     // MARK: Category Row

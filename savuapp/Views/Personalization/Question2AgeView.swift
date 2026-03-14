@@ -51,7 +51,7 @@ struct Question2View: View {
                                 .fill(
                                     data.selectedAge == option
                                         ? AppTheme.Colors.selectedBg
-                                        : Color.white
+                                        : AppTheme.Colors.background
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: AppTheme.Radius.md)

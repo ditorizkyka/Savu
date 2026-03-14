@@ -4,6 +4,16 @@ import SwiftUI
 struct MainTabView: View {
     @State private var selectedTab: Int = 0
 
+    init() {
+        // Glass / translucent tab bar — set in init so it persists
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.3)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
@@ -28,16 +38,6 @@ struct MainTabView: View {
             }
             .tag(2)
         }
-        .onAppear {
-            // Apply standard liquid glass background via UITabBarAppearance
-            let appearance = UITabBarAppearance()
-            appearance.configureWithDefaultBackground()
-            appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterial)
-            UITabBar.appearance().standardAppearance = appearance
-            if #available(iOS 15.0, *) {
-                UITabBar.appearance().scrollEdgeAppearance = appearance
-            }
-        }
     }
 }
 
@@ -45,3 +45,4 @@ struct MainTabView: View {
 #Preview {
     MainTabView()
 }
+

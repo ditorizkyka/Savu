@@ -56,7 +56,7 @@ struct PersonalizeResultView: View {
                 Divider().padding(.leading, 52)
                 summaryRow(icon: "arrow.up.circle.fill", label: "Expense", value: shortLabel(userStore.selectedExpense))
             }
-            .background(Color.white)
+            .background(AppTheme.Colors.cardBackground)
             .cornerRadius(16)
             .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
             .padding(.horizontal, 24)
