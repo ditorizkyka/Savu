@@ -185,7 +185,9 @@ struct HomeView: View {
                         .fill(Color.white.opacity(0.08))
                         .frame(width: 80, height: 80)
                     Image(systemName: "checkmark")
-                        .font(.system(size: 28, weight: .bold))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 28, height: 28)
                         .foregroundColor(.white.opacity(0.15))
                 }
                 .offset(x: -10, y: -10)
@@ -223,16 +225,34 @@ struct HomeView: View {
                 // Month picker
                 HStack {
                     Spacer()
-                    HStack(spacing: 6) {
+                    HStack(spacing: 12) {
+                        Button(action: {
+                            withAnimation { viewModel.previousMonth() }
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .padding(8)
+                        }
+                        
                         Text(viewModel.currentMonthName)
-                            .font(.system(size: 14))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(AppTheme.Colors.textPrimary)
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 11))
-                            .foregroundColor(AppTheme.Colors.textSecondary)
+                            .frame(minWidth: 100)
+                            .multilineTextAlignment(.center)
+                        
+                        Button(action: {
+                            withAnimation { viewModel.nextMonth() }
+                        }) {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(viewModel.hasNextMonth ? AppTheme.Colors.textPrimary : .gray.opacity(0.3))
+                                .padding(8)
+                        }
+                        .disabled(!viewModel.hasNextMonth)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(AppTheme.Colors.divider, lineWidth: 1)

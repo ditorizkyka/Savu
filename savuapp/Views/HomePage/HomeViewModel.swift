@@ -15,6 +15,8 @@ struct CategorySlice: Identifiable {
 
 @MainActor
 final class HomeViewModel: ObservableObject {
+    @Published var selectedMonth: Date = Date()
+    
     var savingsGoalPercent: Double {
         let income = store.totalIncome
         guard income > 0 else { return 0 }
@@ -100,6 +102,28 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Overview / Donut Chart Data
 
+    /// Month Navigation
+    func previousMonth() {
+        if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: selectedMonth) {
+            selectedMonth = newDate
+        }
+    }
+    
+    func nextMonth() {
+        if hasNextMonth, let newDate = Calendar.current.date(byAdding: .month, value: 1, to: selectedMonth) {
+            selectedMonth = newDate
+        }
+    }
+    
+    var hasNextMonth: Bool {
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let selectedMonthNum = Calendar.current.component(.month, from: selectedMonth)
+        let selectedYear = Calendar.current.component(.year, from: selectedMonth)
+        
+        return selectedYear < currentYear || (selectedYear == currentYear && selectedMonthNum < currentMonth)
+    }
+
     /// Predefined category colors
     private let categoryColors: [Color] = [
         Color(hex: "002267"),   // Dark navy
@@ -113,18 +137,17 @@ final class HomeViewModel: ObservableObject {
     /// Current month name
     var currentMonthName: String {
         let fmt = DateFormatter()
-        fmt.dateFormat = "MMMM"
-        return fmt.string(from: Date())
+        fmt.dateFormat = "MMMM yyyy"
+        return fmt.string(from: selectedMonth)
     }
 
     /// Expense breakdown by category for the current month
     var expenseCategorySlices: [CategorySlice] {
         let calendar = Calendar.current
-        let now = Date()
         let monthExpenses = store.transactions.filter {
             $0.type == .expenses &&
-            calendar.component(.month, from: $0.date) == calendar.component(.month, from: now) &&
-            calendar.component(.year, from: $0.date) == calendar.component(.year, from: now)
+            calendar.component(.month, from: $0.date) == calendar.component(.month, from: selectedMonth) &&
+            calendar.component(.year, from: $0.date) == calendar.component(.year, from: selectedMonth)
         }
 
         let grouped = Dictionary(grouping: monthExpenses) { $0.category }
@@ -146,11 +169,10 @@ final class HomeViewModel: ObservableObject {
 
     var totalMonthExpense: Double {
         let calendar = Calendar.current
-        let now = Date()
         return store.transactions.filter {
             $0.type == .expenses &&
-            calendar.component(.month, from: $0.date) == calendar.component(.month, from: now) &&
-            calendar.component(.year, from: $0.date) == calendar.component(.year, from: now)
+            calendar.component(.month, from: $0.date) == calendar.component(.month, from: selectedMonth) &&
+            calendar.component(.year, from: $0.date) == calendar.component(.year, from: selectedMonth)
         }.reduce(0.0) { $0 + $1.amount }
     }
 

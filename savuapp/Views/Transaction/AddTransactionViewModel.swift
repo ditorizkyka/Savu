@@ -65,6 +65,13 @@ final class AddTransactionViewModel: ObservableObject {
         )
 
         store.add(transaction)
+        
+        // Trigger notification if enabled
+        AppNotificationManager.shared.sendTransactionNotification(
+            type: selectedType.rawValue,
+            amount: transaction.formattedAmount
+        )
+        
         resetForm()
     }
 

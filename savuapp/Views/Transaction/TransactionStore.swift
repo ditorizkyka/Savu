@@ -45,9 +45,9 @@ final class TransactionStore: ObservableObject {
     }
 
     /// Transactions filtered by period
-    func filteredTransactions(for period: TransactionPeriod) -> [StoredTransaction] {
+    func filteredTransactions(for period: TransactionPeriod, referenceDate: Date = Date()) -> [StoredTransaction] {
         let calendar = Calendar.current
-        let now = Date()
+        let now = referenceDate
         switch period {
         case .daily:
             return transactions.filter { calendar.isDate($0.date, inSameDayAs: now) }
@@ -63,18 +63,18 @@ final class TransactionStore: ObservableObject {
         }
     }
 
-    func filteredIncome(for period: TransactionPeriod) -> Double {
-        filteredTransactions(for: period).filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
+    func filteredIncome(for period: TransactionPeriod, referenceDate: Date = Date()) -> Double {
+        filteredTransactions(for: period, referenceDate: referenceDate).filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
     }
 
-    func filteredExpense(for period: TransactionPeriod) -> Double {
-        filteredTransactions(for: period).filter { $0.type == .expenses }.reduce(0) { $0 + $1.amount }
+    func filteredExpense(for period: TransactionPeriod, referenceDate: Date = Date()) -> Double {
+        filteredTransactions(for: period, referenceDate: referenceDate).filter { $0.type == .expenses }.reduce(0) { $0 + $1.amount }
     }
 
     /// Transactions grouped by day, sorted by date descending
-    func groupedTransactions(for period: TransactionPeriod) -> [TransactionGroupData] {
+    func groupedTransactions(for period: TransactionPeriod, referenceDate: Date = Date()) -> [TransactionGroupData] {
         let calendar = Calendar.current
-        let now = Date()
+        let now = referenceDate
 
         // Filter by period
         let filtered: [StoredTransaction]

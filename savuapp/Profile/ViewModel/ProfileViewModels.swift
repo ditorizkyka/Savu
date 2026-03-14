@@ -17,7 +17,14 @@ final class ProfileViewModel: ObservableObject {
     @Published var profileImage: UIImage? = nil
 
     @Published var notificationsEnabled: Bool {
-        didSet { UserDefaults.standard.set(notificationsEnabled, forKey: Keys.notifications) }
+        didSet {
+            UserDefaults.standard.set(notificationsEnabled, forKey: Keys.notifications)
+            if notificationsEnabled {
+                AppNotificationManager.shared.requestPermission()
+            } else {
+                AppNotificationManager.shared.cancelAllNotifications()
+            }
+        }
     }
 
     @Published var darkModeEnabled: Bool {
@@ -35,14 +42,23 @@ final class ProfileViewModel: ObservableObject {
         self.userStore = userStore
 
         let defaults = UserDefaults.standard
+        
+        // Initialize all stored properties first
+        self.darkModeEnabled = ThemeManager.shared.isDarkMode
+        self.selectedLanguage = defaults.string(forKey: Keys.language) ?? "Indonesian"
+        
         // Load persisted values (notifications defaults to true on first launch)
         if defaults.object(forKey: Keys.notifications) == nil {
-            self.notificationsEnabled = true
+            self.notificationsEnabled = false
         } else {
             self.notificationsEnabled = defaults.bool(forKey: Keys.notifications)
         }
-        self.darkModeEnabled = ThemeManager.shared.isDarkMode
-        self.selectedLanguage = defaults.string(forKey: Keys.language) ?? "Indonesian"
+        
+        // Sync state with actual system permission
+        AppNotificationManager.shared.checkPermission()
+        if self.notificationsEnabled {
+            AppNotificationManager.shared.requestPermission()
+        }
 
         // Load profile image from file system
         self.profileImage = Self.loadProfileImage()

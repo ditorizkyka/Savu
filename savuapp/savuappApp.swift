@@ -19,6 +19,12 @@ struct savuappApp: App {
             .environmentObject(userStore)
             .environmentObject(themeManager)
             .preferredColorScheme(themeManager.colorScheme)
+            .onAppear {
+                UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
+                if ProfileViewModel().notificationsEnabled {
+                    AppNotificationManager.shared.requestPermission()
+                }
+            }
         }
     }
 }

@@ -78,11 +78,11 @@ final class UserStore: ObservableObject {
     var spendingTagline: String {
         guard !selectedExpense.isEmpty else { return "Saver" }
         if selectedExpense.contains("Less than") || selectedExpense.contains("Rp1,000,000 –") {
-            return "Smart Saver 💰"
+            return "Smart Saver"
         } else if selectedExpense.contains("Rp3,000,000 –") {
-            return "Balanced Spender ⚖️"
+            return "Balanced Spender"
         } else {
-            return "Big Spender 🛍️"
+            return "Big Spender"
         }
     }
 }

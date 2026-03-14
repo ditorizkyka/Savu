@@ -52,12 +52,22 @@ extension TransactionView {
     
     private var dateNavigation: some View {
         HStack {
-            Button(action: {}) { Image(systemName: "chevron.left") as Image }
+            Button(action: {
+                withAnimation { viewModel.moveDate(by: -1) }
+            }) {
+                Image(systemName: "chevron.left")
+                    .padding(8)
+            }
             Spacer()
             Text(viewModel.dateLabel)
                 .font(.system(size: 16, weight: .medium))
             Spacer()
-            Button(action: {}) { Image(systemName: "chevron.right") as Image }
+            Button(action: {
+                withAnimation { viewModel.moveDate(by: 1) }
+            }) {
+                Image(systemName: "chevron.right")
+                    .padding(8)
+            }
         }
         .foregroundStyle(.secondary)
         .padding(.horizontal, 8)
