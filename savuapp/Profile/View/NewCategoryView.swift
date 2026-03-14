@@ -95,7 +95,7 @@ struct NewCategoryView: View {
                 }
             }
         }
-        .background(Color.white)
+        .background(AppTheme.Colors.background)
     }
 
     // MARK: Icon Grid

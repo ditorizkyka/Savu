@@ -62,7 +62,7 @@ struct AddTransactionView: View {
             Button(action: { dismiss() }) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(Color(uiColor: .darkGray))
+                    .foregroundStyle(Color(uiColor: .label))
                     .frame(width: 40, height: 40)
                     .background(
                         Circle()
@@ -74,7 +74,7 @@ struct AddTransactionView: View {
 
             Text("Add Transaction")
                 .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(Color(red: 0.1, green: 0.2, blue: 0.4))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
 
             Spacer()
 
@@ -116,7 +116,7 @@ struct AddTransactionView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Category*")
                 .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(Color(uiColor: .darkGray))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
 
             Button(action: {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -188,7 +188,7 @@ struct AddTransactionView: View {
                         }
                     }
                 }
-                .background(Color.white)
+                .background(AppTheme.Colors.cardBackground)
                 .cornerRadius(14)
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .transition(.opacity.combined(with: .move(edge: .top)))
@@ -201,7 +201,7 @@ struct AddTransactionView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(label)*")
                 .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(Color(uiColor: .darkGray))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
 
             HStack(spacing: 12) {
                 if let icon = icon {

@@ -57,7 +57,7 @@ struct Question1View: View {
                     TextField(
                         text: $data.email,
                         prompt: Text("example@mail.com")
-                            .foregroundColor(.gray.opacity(0.6)) // Mengubah warna hint/placeholder
+                            .foregroundColor(AppTheme.Colors.textDisabled)
                     ) {
                         Text("Email Address")
                     }
@@ -108,7 +108,7 @@ struct CustomTextFieldStyle: ViewModifier {
             .padding(.vertical, AppTheme.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(Color.white)
+                    .fill(AppTheme.Colors.background)
                     .overlay(
                         RoundedRectangle(cornerRadius: AppTheme.Radius.md)
                             .stroke(

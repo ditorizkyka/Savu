@@ -87,7 +87,7 @@ struct PersonalizeLoadingView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .background(Color.white)
+        .background(AppTheme.Colors.background)
         .onAppear { startLoading() }
         .navigationDestination(isPresented: $navigateToResult) {
             PersonalizeResultView(

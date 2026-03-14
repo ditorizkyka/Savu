@@ -27,17 +27,20 @@ enum AppTheme {
         static let darkActive = Color(hex: "#002267")     // Dark :active
         static let darker = Color(hex: "#001b51")         // Darker
         
-        // UI Functional Colors (Disesuaikan dari kode awalmu)
-        static let background = Color.white
-        static let textPrimary = Color.black
-        static let textSecondary = Color(hex: "#6B7280")
-        static let textDisabled = Color(hex: "#9CA3AF")
-        static let divider = Color(hex: "#E5E7EB")
+        // UI Functional Colors — adaptive for dark mode
+        static let background = Color(.systemBackground)
+        static let textPrimary = Color(.label)
+        static let textSecondary = Color(.secondaryLabel)
+        static let textDisabled = Color(.tertiaryLabel)
+        static let divider = Color(.separator)
+        
+        // Card / Surface background (white in light, elevated dark in dark)
+        static let cardBackground = Color(.secondarySystemGroupedBackground)
         
         // Semantic Helpers menggunakan palette baru
         static let selectedBg = light                     // Menggunakan Light #e6edfd
         static let buttonDisabled = primary.opacity(0.35)
-        static let grayButton = Color(hex: "#F3F4F6")
+        static let grayButton = Color(.tertiarySystemFill)
     }
     
     // MARK: - Typography

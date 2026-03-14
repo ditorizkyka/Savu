@@ -68,7 +68,7 @@ struct ChangeProfileView: View {
                 }
             }
         }
-        .background(Color.white)
+        .background(AppTheme.Colors.background)
         .navigationBarHidden(true)
         .onAppear { viewModel.load(from: profileVM) }
         .sheet(isPresented: $viewModel.showImagePicker) {

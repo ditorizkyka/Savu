@@ -35,7 +35,7 @@ struct PersonalizationContainerView: View {
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.black)
+                        .foregroundColor(AppTheme.Colors.textPrimary)
                 }
                 Spacer()
                 Text("Personalization")
@@ -90,7 +90,7 @@ struct PersonalizationContainerView: View {
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .background(Color.white)
+        .background(AppTheme.Colors.background)
         .onAppear {
             if isRepersonalizing {
                 userStore.loadInto(vm: viewModel)
