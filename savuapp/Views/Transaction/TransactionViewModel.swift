@@ -50,9 +50,10 @@ final class TransactionViewModel: ObservableObject {
         }
     }
 
-    var totalIncome: Double { store.totalIncome }
-    var totalExpense: Double { store.totalExpense }
-    var totalBalance: Double { store.totalBalance }
+    // Period-filtered totals
+    var totalIncome: Double { store.filteredIncome(for: selectedPeriod) }
+    var totalExpense: Double { store.filteredExpense(for: selectedPeriod) }
+    var totalBalance: Double { totalIncome - totalExpense }
 
     var formattedIncome: String { formatRupiah(totalIncome) }
     var formattedExpense: String { formatRupiah(totalExpense) }
@@ -73,3 +74,4 @@ final class TransactionViewModel: ObservableObject {
         return formatter.string(from: NSNumber(value: value)) ?? "0"
     }
 }
+

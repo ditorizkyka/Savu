@@ -150,7 +150,7 @@ struct DailyTransactionGroup: View {
             
             VStack(spacing: 0) {
                 ForEach(items) { item in
-                    TransactionRow(title: item.title, category: item.category, time: item.time, amount: item.amount, isExpense: item.isExpense)
+                    TransactionRow(title: item.title, category: item.category, iconName: item.iconName, time: item.time, amount: item.amount, isExpense: item.isExpense)
                 }
             }
         }
@@ -162,6 +162,7 @@ struct DailyTransactionGroup: View {
 struct TransactionRow: View {
     let title: String
     let category: String
+    let iconName: String
     let time: String
     let amount: String
     let isExpense: Bool
@@ -170,7 +171,7 @@ struct TransactionRow: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle().fill(AppTheme.Colors.primary.opacity(0.1))
-                Image(systemName: isExpense ? "fork.knife" : "dollarsign.circle").font(.system(size: 12)).foregroundStyle(AppTheme.Colors.primary)
+                Image(systemName: iconName).font(.system(size: 12)).foregroundStyle(AppTheme.Colors.primary)
             }
             .frame(width: 36, height: 36)
             
