@@ -6,6 +6,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @State private var showAddTransaction = false
+    @State private var showTodaysWrap = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -16,6 +17,7 @@ struct HomeView: View {
                     incomeExpenseRow
                     savingsProgressSection
                     recentTransactionsSection
+                    debugSection
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
@@ -49,6 +51,9 @@ struct HomeView: View {
         .navigationDestination(isPresented: $showAddTransaction) {
             AddTransactionView(store: viewModel.store)
         }
+        .fullScreenCover(isPresented: $showTodaysWrap) {
+            TodaysWrapView()
+        }
     }
 
     // MARK: - Header
@@ -63,13 +68,29 @@ struct HomeView: View {
                     .foregroundColor(AppTheme.Colors.textPrimary)
             }
             Spacer()
-            ZStack {
-                Circle()
-                    .fill(AppTheme.Colors.light)
-                    .frame(width: 44, height: 44)
-                Image(systemName: "bell")
-                    .font(.system(size: 18))
-                    .foregroundColor(AppTheme.Colors.primary)
+            
+            HStack(spacing: 12) {
+                // Today's wrap entry point
+                Button(action: { showTodaysWrap = true }) {
+                    ZStack {
+                        Circle()
+                            .fill(AppTheme.Colors.light)
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 18))
+                            .foregroundColor(.orange)
+                    }
+                }
+                
+                // Notifications
+                ZStack {
+                    Circle()
+                        .fill(AppTheme.Colors.light)
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "bell")
+                        .font(.system(size: 18))
+                        .foregroundColor(AppTheme.Colors.primary)
+                }
             }
         }
         .padding(.top, 8)
@@ -263,6 +284,40 @@ struct HomeView: View {
         .background(Color.white)
         .cornerRadius(AppTheme.Radius.card)
         .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
+    }
+
+    // MARK: - Debug Section (Temporary)
+    private var debugSection: some View {
+        VStack(spacing: 16) {
+            Button(action: {
+                TransactionSeeder.seedData(into: viewModel.store)
+            }) {
+                Text("Seed Temporary Data")
+                    .font(AppTheme.Typography.bodyMedium)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.gray)
+                    .cornerRadius(8)
+            }
+            
+            Button(action: {
+                showTodaysWrap = true
+            }) {
+                HStack {
+                    Image(systemName: "sparkles")
+                    Text("Generate AI Wrap")
+                }
+                .font(AppTheme.Typography.bodyMedium)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(
+                    LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing)
+                )
+                .cornerRadius(8)
+            }
+        }
     }
 
     // MARK: - Greeting Helper

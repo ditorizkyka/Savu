@@ -144,7 +144,10 @@ final class TransactionStore: ObservableObject {
         let now = Date()
 
         transactions = [
-           
+            StoredTransaction(title: "Morning Coffee", amount: 45000, category: "Food & Beverage", iconName: "cup.and.saucer.fill", type: .expenses, date: now),
+            StoredTransaction(title: "Lunch Set", amount: 120000, category: "Food & Beverage", iconName: "fork.knife", type: .expenses, date: now.addingTimeInterval(-3600 * 2)),
+            StoredTransaction(title: "Transport", amount: 35000, category: "Transport", iconName: "car.fill", type: .expenses, date: now.addingTimeInterval(-3600 * 4)),
+            StoredTransaction(title: "Salary Bonus", amount: 1500000, category: "Income", iconName: "dollarsign.circle.fill", type: .income, date: calendar.date(byAdding: .day, value: -1, to: now)!)
         ]
         save()
     }
