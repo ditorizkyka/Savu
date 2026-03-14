@@ -11,14 +11,14 @@ struct OnboardingView: View {
                             AppTheme.Colors.primary
                             
                             // ✅ Ganti dengan image milikmu
-                            Image("onboarding_hero") // nama image di Assets.xcassets
+                            Image("OnboardingImage") // nama image di Assets.xcassets
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 220, height: 300)
-                                .offset(y: 30)
+                                .offset(y: 30).padding(.top, proxy.size.height * 0.1)
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: proxy.size.height * 0.52)
+                        .frame(height: proxy.size.height * 0.6)
                         .clipShape(WaveShape())
                         
                         Spacer()
@@ -26,7 +26,7 @@ struct OnboardingView: View {
                     
                     // Bottom content
                     VStack(spacing: AppTheme.Spacing.md) {
-                        Spacer()
+//                        Spacer()
                         
                         Text("Welcome to Savu!")
                             .font(AppTheme.Typography.title1)
@@ -50,7 +50,7 @@ struct OnboardingView: View {
                         }
                         .padding(.horizontal, AppTheme.Spacing.xxxl)
                         .padding(.bottom, 48)
-                    }
+                    }.padding(.top, proxy.size.height * 0.55)
                 }
                 .ignoresSafeArea()
             }
@@ -58,22 +58,6 @@ struct OnboardingView: View {
     }
 }
 
-struct WaveShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: 0, y: 0))
-        path.addLine(to: CGPoint(x: rect.width, y: 0))
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height - 50))
-        path.addQuadCurve(
-            to: CGPoint(x: 0, y: rect.height - 50),
-            control: CGPoint(x: rect.width / 2, y: rect.height + 30)
-        )
-        path.closeSubpath()
-        return path
-    }
-}
-
 #Preview {
     OnboardingView()
 }
-

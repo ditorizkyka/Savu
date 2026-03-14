@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct Question2View: View {
-    @ObservedObject var data: PersonalizationData
+struct Question3View: View {
+    @ObservedObject var data: PersonalizationViewModel
     @Binding var currentStep: Int
     @State private var isExpanded = false
+    var onDirectionChange: ((Bool) -> Void)? = nil
     
     let incomeOptions = [
         "Less than Rp3,000,000",
@@ -23,7 +24,7 @@ struct Question2View: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Question 2")
+                Text("Question 3")
                     .font(.system(size: 22, weight: .bold))
                 
                 Text("What is your average monthly income?")
@@ -82,12 +83,12 @@ struct Question2View: View {
             
             Spacer()
             
-            
             // Bottom Buttons
             BottomNavButtons(
                 currentStep: $currentStep,
                 canGoNext: !data.selectedIncome.isEmpty,
-                totalSteps: 3
+                totalSteps: 4,
+                onDirectionChange: onDirectionChange
             )
         }.navigationBarBackButtonHidden(true)
     }

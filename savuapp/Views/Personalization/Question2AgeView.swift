@@ -1,8 +1,9 @@
 import SwiftUI
 
-struct Question1View: View {
-    @ObservedObject var data: PersonalizationData
+struct Question2View: View {
+    @ObservedObject var data: PersonalizationViewModel
     @Binding var currentStep: Int
+    var onDirectionChange: ((Bool) -> Void)? = nil
     
     let ageOptions = ["Under 18", "18 – 24", "25 – 34", "35 – 44", "More than 45"]
     
@@ -11,7 +12,7 @@ struct Question1View: View {
             
             // Question Header
             VStack(alignment: .leading, spacing: 6) {
-                Text("Question 1")
+                Text("Question 2")
                     .font(AppTheme.Typography.title2)
                 
                 Text("What is your range of age?")
@@ -73,12 +74,13 @@ struct Question1View: View {
             BottomNavButtons(
                 currentStep: $currentStep,
                 canGoNext: !data.selectedAge.isEmpty,
-                totalSteps: 3
+                totalSteps: 4,
+                onDirectionChange: onDirectionChange
             )
         }
-        .navigationBarBackButtonHidden(true)       // ✅ hide back button
-        .navigationBarHidden(true)                 // ✅ hide entire nav bar
-        .toolbar(.hidden, for: .navigationBar)     // ✅ iOS 16+ extra safety
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -88,7 +90,7 @@ struct Question1View: View {
 }
 
 #Preview("Question 1 - Selected") {
-    let data = PersonalizationData()
+    let data = PersonalizationViewModel()
     data.selectedAge = "18 – 24"
     return NavigationStack {
         Question1View(data: data, currentStep: .constant(1))

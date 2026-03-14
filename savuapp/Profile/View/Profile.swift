@@ -5,10 +5,13 @@ import SwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var userStore: UserStore
 
     @State private var goSettings      = false
     @State private var goChangeProfile = false
     @State private var goCategory      = false
+    @State private var goChangePersonalization = false
 
     var body: some View {
         NavigationStack {
@@ -39,6 +42,16 @@ struct ProfileView: View {
             .navigationDestination(isPresented: $goCategory) {
                 CategoryView()
             }
+            .fullScreenCover(isPresented: $goChangePersonalization) {
+                NavigationStack {
+                    PersonalizationContainerView(
+                        isRepersonalizing: true,
+                        dismissAll: { goChangePersonalization = false }
+                    )
+                }
+                .environmentObject(appState)
+                .environmentObject(userStore)
+            }
         }
     }
 
@@ -64,9 +77,9 @@ struct ProfileView: View {
                 }
             }
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 7  ) {
                 HStack(spacing: 6) {
-                    Text(viewModel.fullName)
+                    Text(userStore.username.isEmpty ? "User" : userStore.username)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
 
@@ -78,7 +91,7 @@ struct ProfileView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                Text(viewModel.tagline)
+                Text(userStore.email)
                     .font(.system(size: 13))
                     .foregroundColor(.white.opacity(0.75))
             }
@@ -105,7 +118,7 @@ struct ProfileView: View {
         VStack(spacing: 0) {
             menuRow(icon: "gearshape",            label: "Settings")               { goSettings = true }
             Divider().padding(.leading, 52)
-            menuRow(icon: "person",               label: "Change Personalization") {}   // kosong
+            menuRow(icon: "person",               label: "Change Personalization") { goChangePersonalization = true }
             Divider().padding(.leading, 52)
             menuRow(icon: "slider.horizontal.3",  label: "Category Settings")      { goCategory = true }
             Divider().padding(.leading, 52)
@@ -144,4 +157,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
+        .environmentObject(UserStore.shared)
 }
