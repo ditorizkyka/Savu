@@ -10,15 +10,23 @@ struct UserProfile {
 }
 
 // MARK: - CategoryType
-enum CategoryType: String, CaseIterable {
+enum CategoryType: String, CaseIterable, Codable {
     case income  = "Income"
     case expense = "Expense"
 }
 
 // MARK: - Category
-struct Category: Identifiable {
-    let id: UUID = UUID()
+struct Category: Identifiable, Codable {
+    let id: UUID
     var name: String
     var iconName: String
     var type: CategoryType
+
+    init(id: UUID = UUID(), name: String, iconName: String, type: CategoryType) {
+        self.id = id
+        self.name = name
+        self.iconName = iconName
+        self.type = type
+    }
 }
+

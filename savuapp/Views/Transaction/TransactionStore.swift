@@ -44,6 +44,33 @@ final class TransactionStore: ObservableObject {
         )
     }
 
+    /// Transactions filtered by period
+    func filteredTransactions(for period: TransactionPeriod) -> [StoredTransaction] {
+        let calendar = Calendar.current
+        let now = Date()
+        switch period {
+        case .daily:
+            return transactions.filter { calendar.isDate($0.date, inSameDayAs: now) }
+        case .weekly:
+            let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
+            let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart)!
+            return transactions.filter { $0.date >= weekStart && $0.date < weekEnd }
+        case .monthly:
+            return transactions.filter {
+                calendar.component(.month, from: $0.date) == calendar.component(.month, from: now) &&
+                calendar.component(.year, from: $0.date) == calendar.component(.year, from: now)
+            }
+        }
+    }
+
+    func filteredIncome(for period: TransactionPeriod) -> Double {
+        filteredTransactions(for: period).filter { $0.type == .income }.reduce(0) { $0 + $1.amount }
+    }
+
+    func filteredExpense(for period: TransactionPeriod) -> Double {
+        filteredTransactions(for: period).filter { $0.type == .expenses }.reduce(0) { $0 + $1.amount }
+    }
+
     /// Transactions grouped by day, sorted by date descending
     func groupedTransactions(for period: TransactionPeriod) -> [TransactionGroupData] {
         let calendar = Calendar.current

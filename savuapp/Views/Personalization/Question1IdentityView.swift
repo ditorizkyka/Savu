@@ -77,7 +77,7 @@ struct Question1View: View {
             BottomNavButtons(
                 currentStep: $currentStep,
                 canGoNext: validateInputs(),
-                totalSteps: 3,
+                totalSteps: 4,
                 onDirectionChange: onDirectionChange
             )
         }

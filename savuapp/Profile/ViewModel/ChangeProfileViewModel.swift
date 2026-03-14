@@ -18,8 +18,10 @@ final class ChangeProfileViewModel: ObservableObject {
     func saveChanges(to profile: ProfileViewModel) {
         // Save name to UserStore (source of truth)
         UserStore.shared.username = fullName
+        // Save profile image to file system
         if let img = selectedImage {
-            profile.profileImage = img
+            profile.saveProfileImage(img)
         }
     }
 }
+

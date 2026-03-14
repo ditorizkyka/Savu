@@ -6,7 +6,11 @@ import Combine
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-    @Published var savingsGoalPercent: Double = 0.65
+    var savingsGoalPercent: Double {
+        let income = store.totalIncome
+        guard income > 0 else { return 0 }
+        return max(0, min(1, (income - store.totalExpense) / income))
+    }
 
     private var cancellables = Set<AnyCancellable>()
     let store: TransactionStore

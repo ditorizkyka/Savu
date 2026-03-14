@@ -67,14 +67,16 @@ struct TransactionItem: Identifiable {
     let id: UUID
     let title: String
     let category: String
+    let iconName: String
     let time: String
     let amount: String
     let isExpense: Bool
 
-    init(id: UUID = UUID(), title: String, category: String, time: String, amount: String, isExpense: Bool) {
+    init(id: UUID = UUID(), title: String, category: String, iconName: String = "questionmark.circle", time: String, amount: String, isExpense: Bool) {
         self.id = id
         self.title = title
         self.category = category
+        self.iconName = iconName
         self.time = time
         self.amount = amount
         self.isExpense = isExpense
@@ -85,6 +87,7 @@ struct TransactionItem: Identifiable {
         self.id = stored.id
         self.title = stored.title
         self.category = stored.category
+        self.iconName = stored.iconName
         self.time = stored.formattedTime
         self.amount = stored.formattedAmount
         self.isExpense = stored.isExpense

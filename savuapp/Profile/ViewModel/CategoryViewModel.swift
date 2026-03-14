@@ -10,25 +10,39 @@ final class CategoryViewModel: ObservableObject {
     @Published var showInfoBanner: Bool           = true
     @Published var showNewCategorySheet: Bool     = false
 
-    @Published var incomeCategories: [Category] = [
-        Category(name: "Food & Dining",   iconName: "fork.knife", type: .income),
-        Category(name: "Shopping",         iconName: "cart",       type: .income),
-        Category(name: "Transportation",   iconName: "car",        type: .income),
-        Category(name: "Home & Utilities", iconName: "house",      type: .income),
-        Category(name: "Healthcare",       iconName: "heart",      type: .income),
-        Category(name: "Entertainment",    iconName: "gift",       type: .income),
-        Category(name: "Utilities",        iconName: "bolt",       type: .income),
+    @Published var incomeCategories: [Category] = []
+    @Published var expenseCategories: [Category] = []
+
+    // MARK: - UserDefaults Keys
+    private let incomeKey = "savu_income_categories"
+    private let expenseKey = "savu_expense_categories"
+
+    // MARK: - Default Categories
+    private static let defaultIncomeCategories: [Category] = [
+        Category(name: "Salary",         iconName: "banknote",     type: .income),
+        Category(name: "Freelance",      iconName: "laptopcomputer", type: .income),
+        Category(name: "Investment",     iconName: "chart.line.uptrend.xyaxis", type: .income),
+        Category(name: "Gift",           iconName: "gift",         type: .income),
+        Category(name: "Work",           iconName: "briefcase",    type: .income),
+        Category(name: "Other",          iconName: "ellipsis.circle", type: .income),
     ]
 
-    @Published var expenseCategories: [Category] = [
-        Category(name: "Food & Dining",   iconName: "fork.knife", type: .expense),
-        Category(name: "Shopping",         iconName: "cart",       type: .expense),
-        Category(name: "Transportation",   iconName: "car",        type: .expense),
-        Category(name: "Home & Utilities", iconName: "house",      type: .expense),
-        Category(name: "Healthcare",       iconName: "heart",      type: .expense),
-        Category(name: "Entertainment",    iconName: "gift",       type: .expense),
-        Category(name: "Utilities",        iconName: "bolt",       type: .expense),
+    private static let defaultExpenseCategories: [Category] = [
+        Category(name: "Food & Beverages", iconName: "fork.knife",  type: .expense),
+        Category(name: "Shopping",         iconName: "cart",         type: .expense),
+        Category(name: "Transportation",   iconName: "car",          type: .expense),
+        Category(name: "Home & Utilities", iconName: "house",        type: .expense),
+        Category(name: "Healthcare",       iconName: "heart",        type: .expense),
+        Category(name: "Entertainment",    iconName: "gamecontroller", type: .expense),
+        Category(name: "Education",        iconName: "graduationcap", type: .expense),
+        Category(name: "Other",            iconName: "ellipsis.circle", type: .expense),
     ]
+
+    // MARK: - Init
+    init() {
+        self.incomeCategories = Self.load(key: incomeKey) ?? Self.defaultIncomeCategories
+        self.expenseCategories = Self.load(key: expenseKey) ?? Self.defaultExpenseCategories
+    }
 
     var activeCategories: [Category] {
         selectedTab == .income ? incomeCategories : expenseCategories
@@ -40,6 +54,7 @@ final class CategoryViewModel: ObservableObject {
         } else {
             expenseCategories.removeAll { $0.id == category.id }
         }
+        save()
     }
 
     func add(name: String, iconName: String) {
@@ -49,5 +64,26 @@ final class CategoryViewModel: ObservableObject {
         } else {
             expenseCategories.append(cat)
         }
+        save()
+    }
+
+    // MARK: - Persistence
+
+    private func save() {
+        if let incData = try? JSONEncoder().encode(incomeCategories) {
+            UserDefaults.standard.set(incData, forKey: incomeKey)
+        }
+        if let expData = try? JSONEncoder().encode(expenseCategories) {
+            UserDefaults.standard.set(expData, forKey: expenseKey)
+        }
+    }
+
+    private static func load(key: String) -> [Category]? {
+        guard let data = UserDefaults.standard.data(forKey: key),
+              let decoded = try? JSONDecoder().decode([Category].self, from: data) else {
+            return nil
+        }
+        return decoded
     }
 }
+
