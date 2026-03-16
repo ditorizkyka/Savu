@@ -55,6 +55,8 @@ struct PersonalizeResultView: View {
                 summaryRow(icon: "arrow.down.circle.fill", label: "Income", value: shortLabel(userStore.selectedIncome))
                 Divider().padding(.leading, 52)
                 summaryRow(icon: "arrow.up.circle.fill", label: "Expense", value: shortLabel(userStore.selectedExpense))
+                Divider().padding(.leading, 52)
+                summaryRow(icon: "creditcard.fill", label: "Spending Profile", value: shortLabel(userStore.spendingTagline))
             }
             .background(AppTheme.Colors.cardBackground)
             .cornerRadius(16)

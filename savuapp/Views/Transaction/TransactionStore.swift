@@ -101,11 +101,6 @@ final class TransactionStore: ObservableObject {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM yyyy"
 
-        let amountFormatter = NumberFormatter()
-        amountFormatter.numberStyle = .decimal
-        amountFormatter.groupingSeparator = "."
-        amountFormatter.maximumFractionDigits = 0
-
         return grouped
             .sorted { $0.key > $1.key }
             .map { (dayDate, dayTxs) in
@@ -120,7 +115,7 @@ final class TransactionStore: ObservableObject {
                 let income = dayTxs.filter { $0.type == .income }.reduce(0.0) { $0 + $1.amount }
                 let expense = dayTxs.filter { $0.type == .expenses }.reduce(0.0) { $0 + $1.amount }
                 let net = income - expense
-                let totalStr = "\(net >= 0 ? "+" : "-")Rp\(amountFormatter.string(from: NSNumber(value: abs(net))) ?? "0")"
+                let totalStr = CurrencyFormatter.formatSigned(net)
 
                 let items = dayTxs
                     .sorted { $0.date > $1.date }
@@ -159,8 +154,8 @@ final class TransactionStore: ObservableObject {
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: storageKey),
               let decoded = try? JSONDecoder().decode([StoredTransaction].self, from: data) else {
-            // Load with sample data on first launch
-            loadSampleData()
+            // Fresh install — start empty
+            transactions = []
             return
         }
         transactions = decoded

@@ -177,7 +177,7 @@ struct TodaysWrapView: View {
                 .foregroundColor(.white)
             
             Text(description)
-                .font(.system(size: 11))
+                .font(.system(size: 14))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white.opacity(0.9))
                 .lineSpacing(2)
@@ -211,7 +211,7 @@ struct WrapCardView: View {
         
         VStack(spacing: 16) {
             Text(card.title)
-                .font(.system(size: 14))
+                .font(.system(size: 16))
                 .foregroundColor(.white.opacity(0.9))
             
             Text(card.amount)
@@ -219,7 +219,7 @@ struct WrapCardView: View {
                 .foregroundColor(.white)
             
             Text(card.description)
-                .font(.system(size: 12))
+                .font(.system(size: 16))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white.opacity(0.8))
                 .padding(.horizontal, 32)

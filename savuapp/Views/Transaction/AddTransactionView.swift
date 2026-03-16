@@ -37,7 +37,13 @@ struct AddTransactionView: View {
                             HStack {
                                 Text("Rp")
                                     .foregroundStyle(.secondary)
-                                TextField("0", text: $viewModel.amount)
+                                TextField(
+                                    "0",
+                                    text: Binding(
+                                        get: { viewModel.amount },
+                                        set: { viewModel.updateAmountInput($0) }
+                                    )
+                                )
                                     .keyboardType(.numberPad)
                             }
                         }
@@ -46,6 +52,11 @@ struct AddTransactionView: View {
                         categoryField
                     }
                     .padding(.top, 8)
+
+                    (Text("* ").foregroundColor(.red) + Text("Required field"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     submitButton
                 }
@@ -117,7 +128,7 @@ struct AddTransactionView: View {
     // MARK: - Category Field
     private var categoryField: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Category*")
+            (Text("Category") + Text("*").foregroundColor(.red))
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(AppTheme.Colors.textPrimary)
 
@@ -202,7 +213,7 @@ struct AddTransactionView: View {
     // MARK: - Input Field
     private func inputField<Content: View>(label: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("\(label)*")
+            (Text(label) + Text("*").foregroundColor(.red))
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(AppTheme.Colors.textPrimary)
 

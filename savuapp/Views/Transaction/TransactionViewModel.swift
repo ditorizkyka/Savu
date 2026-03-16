@@ -74,23 +74,8 @@ final class TransactionViewModel: ObservableObject {
     var totalExpense: Double { store.filteredExpense(for: selectedPeriod, referenceDate: currentDate) }
     var totalBalance: Double { totalIncome - totalExpense }
 
-    var formattedIncome: String { formatRupiah(totalIncome) }
-    var formattedExpense: String { formatRupiah(totalExpense) }
-    var formattedTotal: String {
-        let net = totalBalance
-        return "\(net >= 0 ? "+" : "-")Rp\(formatNumber(abs(net)))"
-    }
-
-    private func formatRupiah(_ value: Double) -> String {
-        "Rp\(formatNumber(value))"
-    }
-
-    private func formatNumber(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = "."
-        formatter.maximumFractionDigits = 0
-        return formatter.string(from: NSNumber(value: value)) ?? "0"
-    }
+    var formattedIncome: String { CurrencyFormatter.format(totalIncome) }
+    var formattedExpense: String { CurrencyFormatter.format(totalExpense) }
+    var formattedTotal: String { CurrencyFormatter.formatSigned(totalBalance) }
 }
 

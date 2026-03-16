@@ -13,6 +13,16 @@ final class AddTransactionViewModel: ObservableObject {
     @Published var selectedCategory: String = ""
     @Published var showCategoryPicker: Bool = false
 
+    private static let amountFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = "."
+        formatter.decimalSeparator = ","
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        return formatter
+    }()
+
     // MARK: - Category Options
     var incomeCategories: [(name: String, icon: String)] = []
     var expenseCategories: [(name: String, icon: String)] = []
@@ -41,14 +51,31 @@ final class AddTransactionViewModel: ObservableObject {
     var canSave: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty &&
         !amount.isEmpty &&
-        (Double(amount) ?? 0) > 0 &&
+        amountValue > 0 &&
         !selectedCategory.isEmpty
+    }
+
+    private var amountValue: Double {
+        let digits = amount.filter(\.isNumber)
+        return Double(digits) ?? 0
+    }
+
+    func updateAmountInput(_ input: String) {
+        let digits = input.filter(\.isNumber)
+
+        guard !digits.isEmpty else {
+            amount = ""
+            return
+        }
+
+        let numericValue = Double(digits) ?? 0
+        amount = Self.amountFormatter.string(from: NSNumber(value: numericValue)) ?? digits
     }
 
     // MARK: - Save
 
     func save(to store: TransactionStore) {
-        guard canSave, let amountValue = Double(amount) else { return }
+        guard canSave else { return }
 
         let transaction = StoredTransaction(
             title: title.trimmingCharacters(in: .whitespaces),

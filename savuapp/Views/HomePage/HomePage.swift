@@ -1,55 +1,48 @@
 // HomeView.swift
 // savuapp > Views > HomePage
 
+// MARK: - Imports
 import SwiftUI
 
+// MARK: - Main Type Declaration
 struct HomeView: View {
+    // MARK: - Properties
     @StateObject private var viewModel = HomeViewModel()
     @State private var showAddTransaction = false
     @State private var showTodaysWrap = false
+    @Environment(\.scenePhase) private var scenePhase
 
+    // MARK: - Body
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Dark navy header area
-                    headerAndBalanceSection
+                    // MARK: - Header & Card Layering
+                    ZStack(alignment: .top) {
+                        // 1. Dark navy background (bottom layer)
+                        headerBackground
 
-                    // Content below header
-                    VStack(spacing: 20) {
+                        // 2. Profile header + balance card (top layer)
+                        VStack(spacing: 0) {
+                            profileHeader
+                            balanceCard
+                        }
+                    }
+
+                    // MARK: - Main Content Area
+                    VStack(spacing: 24) {
                         suggestionSection
                         overviewSection
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                    .padding(.bottom, 120)
+                    .padding(20)
+                    .padding(.bottom, 80)
                 }
             }
-            .background(Color(.systemGroupedBackground))
-            .ignoresSafeArea(edges: .top)
+            .background(Color(uiColor: .systemBackground))
 
-            // MARK: - Floating Action Button
-            Button(action: { showAddTransaction = true }) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [AppTheme.Colors.primary, AppTheme.Colors.primary.opacity(0.8)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 60, height: 60)
-                        .shadow(color: AppTheme.Colors.primary.opacity(0.4), radius: 12, x: 0, y: 6)
-
-                    Image(systemName: "plus")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(.trailing, 24)
-            .padding(.bottom, 90)
+            floatingActionButton
         }
+        .edgesIgnoringSafeArea(.top)
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $showAddTransaction) {
             AddTransactionView(store: viewModel.store)
@@ -58,178 +51,210 @@ struct HomeView: View {
             TodaysWrapView()
         }
         .onAppear {
-            // Reinforce glass tab bar appearance
             let appearance = UITabBarAppearance()
             appearance.configureWithTransparentBackground()
             appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
             appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.3)
             UITabBar.appearance().standardAppearance = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
+            Task { await viewModel.triggerAutoGenerationIfNeeded() }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task { await viewModel.triggerAutoGenerationIfNeeded() }
+            }
         }
     }
+}
 
-    // MARK: - Header + Balance (Dark Navy Section)
-    private var headerAndBalanceSection: some View {
-        VStack(spacing: 16) {
-            Spacer().frame(height: 54) // status bar space
+// MARK: - Private Subviews
+extension HomeView {
 
-            // Greeting row
-            HStack(spacing: 12) {
-                // Avatar
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.2))
-                        .frame(width: 44, height: 44)
-                    if let img = viewModel.profileImage {
-                        Image(uiImage: img)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
+    private var headerBackground: some View {
+        Color(red: 0.02, green: 0.05, blue: 0.12)
+            .frame(height: 220)
+    }
+
+    private var profileHeader: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 44, height: 44)
+                if let img = viewModel.profileImage {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                } else {
+                    Image(systemName: "person.crop.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.white.opacity(0.8))
                 }
+            }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Good \(greetingTime), \(viewModel.userName)")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                    Text("You Are The \(viewModel.spendingTagline)")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.7))
-                }
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Good \(greetingTime), \(viewModel.userName)")
+                    .font(.system(size: 16, weight: .bold))
+                Text("You Are The \(viewModel.spendingTagline)")
+                    .font(.system(size: 12))
+                    .opacity(0.6)
+            }
+            .foregroundStyle(.white)
+
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 60)
+        .padding(.bottom, 24)
+    }
+
+    private var balanceCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Total Balance")
+                .font(.system(size: 14))
+                .opacity(0.9)
+
+            Text(viewModel.formattedBalance)
+                .font(.system(size: 32, weight: .bold))
+
+            HStack {
+                summaryItem(label: "Income", amount: viewModel.formattedIncome)
+                Spacer()
+                summaryItem(label: "Expense", amount: viewModel.formattedExpense)
                 Spacer()
             }
-            .padding(.horizontal, 20)
-
-            // Balance Card
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Total Balance")
-                    .font(.system(size: 13))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(viewModel.formattedBalance)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-
-                // Income / Expense row - left aligned
-                HStack(spacing: 24) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Income")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(0.7))
-                        Text(viewModel.formattedIncome)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Expense")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(0.7))
-                        Text(viewModel.formattedExpense)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
-                .padding(.top, 4)
-            }
-            .padding(.vertical, 20)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(
-                        LinearGradient(
-                            stops: [
-                                Gradient.Stop(color: Color(red: 0, green: 0.28, blue: 0.85), location: 0.0),
-                                Gradient.Stop(color: Color(red: 0.05, green: 0.35, blue: 0.95), location: 1.0),
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            )
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
         }
+        .padding(24)
         .background(
-            Color(hex: "001B51")
-                .ignoresSafeArea(edges: .top)
+            RoundedRectangle(cornerRadius: 24)
+                .fill(LinearGradient(
+                    colors: [Color(red: 0.05, green: 0.3, blue: 0.9), Color(red: 0.1, green: 0.2, blue: 0.7)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
         )
+        .foregroundStyle(.white)
+        .padding(.horizontal, 20)
+        .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 12)
     }
 
-    // MARK: - Our Suggestion Section
+    private func summaryItem(label: String, amount: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label).font(.caption).opacity(0.8)
+            Text(amount).font(.system(size: 14, weight: .bold))
+        }
+    }
+
+    // MARK: - Suggestion Section
     private var suggestionSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Our Suggestion")
-                .font(.system(size: 17, weight: .bold))
-                .foregroundColor(AppTheme.Colors.textPrimary)
+                .font(.headline)
 
-            // Suggestion Card with blue-to-gold gradient matching mockup
-            Button(action: { showTodaysWrap = true }) {
-                ZStack(alignment: .bottomTrailing) {
-                    // Gradient background
-                LinearGradient(
-                    stops: [
-                        Gradient.Stop(color: Color(red: 0.12, green: 0.15, blue: 0.25), location: 0.0),
-                        Gradient.Stop(color: Color(red: 0.15, green: 0.25, blue: 0.5), location: 0.3),
-                        Gradient.Stop(color: Color(red: 0.6, green: 0.5, blue: 0.15), location: 0.85),
-                        Gradient.Stop(color: Color(red: 0.75, green: 0.6, blue: 0.1), location: 1.0),
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+            Button(action: {
+                if viewModel.hasSuggestion {
+                    showTodaysWrap = true
+                } else {
+                    showAddTransaction = true
+                }
+            }) {
+                HStack(spacing: 16) {
+                    // Leading icon
+                    ZStack {
+                        Circle()
+                            .fill(viewModel.hasSuggestion
+                                  ? Color.white.opacity(0.2)
+                                  : Color.white.opacity(0.08))
+                            .frame(width: 48, height: 48)
+
+                        Image(systemName: viewModel.hasSuggestion
+                              ? "checkmark.circle.fill"
+                              : viewModel.hasTransactionsToday
+                                ? "rays"
+                                : "plus.circle")
+                            .font(.system(size: viewModel.hasSuggestion ? 28 : 22, weight: .semibold))
+                            .foregroundStyle(viewModel.hasSuggestion ? .white : .white.opacity(0.6))
+                            .symbolEffect(.pulse, isActive: !viewModel.hasSuggestion && viewModel.hasTransactionsToday)
+                    }
+
+                    // Text content
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(viewModel.hasSuggestion
+                             ? "Your Daily Suggestion is Ready!"
+                             : viewModel.hasTransactionsToday
+                               ? "Your Daily Suggestion Is Being Prepared"
+                               : "No Transactions Yet Today")
+                            .font(.system(size: 15, weight: .bold))
+                            .multilineTextAlignment(.leading)
+
+                        Text(viewModel.hasSuggestion
+                             ? "Tap to see your insights →"
+                             : viewModel.hasTransactionsToday
+                               ? "Ready around \(nextSuggestionTime)"
+                               : "Add a transaction to get today's insight")
+                            .font(.caption)
+                            .opacity(0.75)
+                    }
+
+                    Spacer()
+                }
+                .padding(20)
+                .foregroundStyle(.white)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(
+                            viewModel.hasSuggestion
+                            ? LinearGradient(
+                                stops: [
+                                    .init(color: Color(red: 0.05, green: 0.65, blue: 0.45), location: 0),
+                                    .init(color: Color(red: 0.02, green: 0.45, blue: 0.35), location: 1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(
+                                stops: [
+                                    .init(color: Color(red: 0.22, green: 0.18, blue: 0.1), location: 0),
+                                    .init(color: Color(red: 0.1, green: 0.1, blue: 0.1), location: 1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                 )
-
-                // Decorative checkmark circle
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.08))
-                        .frame(width: 80, height: 80)
-                    Image(systemName: "checkmark")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 28, height: 28)
-                        .foregroundColor(.white.opacity(0.15))
-                }
-                .offset(x: -10, y: -10)
-
-                // Text content
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(viewModel.hasSuggestion
-                         ? "Your Daily Suggestion is Ready!"
-                         : "Your Daily Suggestion Is Being Prepared")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .lineLimit(2)
-                    Text(viewModel.hasSuggestion
-                         ? "Tap to see"
-                         : "Click to add new transaction")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.7))
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-                .padding(18)
-            }
-            .frame(height: 140)
-            .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            viewModel.hasSuggestion
+                            ? Color.white.opacity(0.25)
+                            : Color.white.opacity(0.05),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(
+                    color: viewModel.hasSuggestion
+                        ? Color(red: 0.05, green: 0.65, blue: 0.45).opacity(0.4)
+                        : .clear,
+                    radius: 12, x: 0, y: 6
+                )
             }
             .buttonStyle(.plain)
+            .animation(.easeInOut(duration: 0.35), value: viewModel.hasSuggestion)
         }
     }
 
+
     // MARK: - Overview Section
     private var overviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Overview")
-                .font(.system(size: 17, weight: .bold))
-                .foregroundColor(AppTheme.Colors.textPrimary)
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Overview").font(.headline)
 
-            VStack(spacing: 16) {
-                // Month picker
+            VStack(spacing: 24) {
+                // Month navigation (chevron-based, same logic as before)
                 HStack {
                     Spacer()
                     HStack(spacing: 12) {
@@ -238,22 +263,22 @@ struct HomeView: View {
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundStyle(AppTheme.Colors.textPrimary)
                                 .padding(8)
                         }
-                        
+
                         Text(viewModel.currentMonthName)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(AppTheme.Colors.textPrimary)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
                             .frame(minWidth: 100)
                             .multilineTextAlignment(.center)
-                        
+
                         Button(action: {
                             withAnimation { viewModel.nextMonth() }
                         }) {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(viewModel.hasNextMonth ? AppTheme.Colors.textPrimary : .gray.opacity(0.3))
+                                .foregroundStyle(viewModel.hasNextMonth ? AppTheme.Colors.textPrimary : .gray.opacity(0.3))
                                 .padding(8)
                         }
                         .disabled(!viewModel.hasNextMonth)
@@ -269,22 +294,20 @@ struct HomeView: View {
 
                 // Donut Chart
                 if viewModel.expenseCategorySlices.isEmpty {
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Circle()
-                                .stroke(AppTheme.Colors.light, lineWidth: 20)
-                                .frame(width: 160, height: 160)
-                            VStack(spacing: 2) {
-                                Text("No Data")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(AppTheme.Colors.textSecondary)
-                                Text("Rp 0")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(AppTheme.Colors.textPrimary)
-                            }
+                    ZStack {
+                        Circle()
+                            .stroke(AppTheme.Colors.light, lineWidth: 20)
+                            .frame(width: 160, height: 160)
+                        VStack(spacing: 2) {
+                            Text("No Data")
+                                .font(.system(size: 13))
+                                .foregroundStyle(AppTheme.Colors.textSecondary)
+                            Text("Rp 0")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(AppTheme.Colors.textPrimary)
                         }
-                        .frame(height: 200)
                     }
+                    .frame(height: 200)
                 } else {
                     ZStack {
                         DonutChart(slices: viewModel.expenseCategorySlices)
@@ -293,40 +316,53 @@ struct HomeView: View {
                             if let top = viewModel.expenseCategorySlices.first {
                                 Text(top.name)
                                     .font(.system(size: 12))
-                                    .foregroundColor(AppTheme.Colors.textSecondary)
+                                    .foregroundStyle(AppTheme.Colors.textSecondary)
                             }
                             Text(viewModel.formattedTotalMonthExpense)
                                 .font(.system(size: 17, weight: .bold))
-                                .foregroundColor(AppTheme.Colors.textPrimary)
+                                .foregroundStyle(AppTheme.Colors.textPrimary)
                         }
                     }
                     .frame(height: 200)
 
                     // Legend
-                    VStack(spacing: 8) {
+                    VStack(spacing: 12) {
                         ForEach(viewModel.expenseCategorySlices) { slice in
-                            HStack(spacing: 8) {
-                                Circle()
-                                    .fill(slice.color)
-                                    .frame(width: 10, height: 10)
-                                Text(slice.name)
-                                    .font(.system(size: 13))
-                                    .foregroundColor(AppTheme.Colors.textPrimary)
-                                Spacer()
-                                Text("\(Int(slice.percentage * 100))%")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(AppTheme.Colors.textSecondary)
-                            }
+                            legendItem(color: slice.color, label: slice.name, percent: "\(Int(slice.percentage * 100))%")
                         }
                     }
-                    .padding(.horizontal, 8)
                 }
             }
-            .padding(16)
-            .background(AppTheme.Colors.cardBackground)
-            .cornerRadius(AppTheme.Radius.card)
-            .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
+            .padding(24)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(.white)
+                    .shadow(color: .black.opacity(0.05), radius: 10)
+            )
+            .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
         }
+    }
+
+    private func legendItem(color: Color, label: String, percent: String) -> some View {
+        HStack {
+            Circle().fill(color).frame(width: 10, height: 10)
+            Text(label).font(.caption).foregroundStyle(.secondary)
+            Spacer()
+            Text(percent).font(.caption).fontWeight(.bold)
+        }
+    }
+
+    private var floatingActionButton: some View {
+        Button(action: { showAddTransaction = true }) {
+            Image(systemName: "plus")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 60, height: 60)
+                .background(Circle().fill(Color.blue))
+                .shadow(color: .blue.opacity(0.3), radius: 10, y: 5)
+        }
+        .padding(.trailing, 24)
+        .padding(.bottom, 20)
     }
 
     // MARK: - Greeting Helper
@@ -338,6 +374,18 @@ struct HomeView: View {
         case 17..<21: return "Evening"
         default: return "Night"
         }
+    }
+
+    // MARK: - Next Suggestion Time Helper
+    /// Returns the fixed auto-generation time of 8:00 PM.
+    private var nextSuggestionTime: String {
+        var components = DateComponents()
+        components.hour = 20
+        components.minute = 0
+        guard let eightPM = Calendar.current.date(from: components) else { return "8:00 PM" }
+        let fmt = DateFormatter()
+        fmt.dateFormat = "h:mm a"
+        return fmt.string(from: eightPM)
     }
 }
 
@@ -394,6 +442,7 @@ struct DonutSlice: Shape {
     }
 }
 
+// MARK: - Preview
 #Preview {
     NavigationStack {
         HomeView()

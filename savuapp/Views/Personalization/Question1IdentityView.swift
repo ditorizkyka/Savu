@@ -56,7 +56,7 @@ struct Question1View: View {
                     
                     TextField(
                         text: $data.email,
-                        prompt: Text("example@mail.com")
+                        prompt: Text("Enter your e-mail")
                             .foregroundColor(AppTheme.Colors.textDisabled)
                     ) {
                         Text("Email Address")

@@ -47,12 +47,8 @@ struct StoredTransaction: Identifiable, Codable {
     var isExpense: Bool { type == .expenses }
 
     var formattedAmount: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = "."
-        formatter.maximumFractionDigits = 0
-        let formatted = formatter.string(from: NSNumber(value: amount)) ?? "0"
-        return "\(isExpense ? "-" : "+")Rp\(formatted)"
+        let signed = isExpense ? -amount : amount
+        return CurrencyFormatter.formatSigned(signed)
     }
 
     var formattedTime: String {

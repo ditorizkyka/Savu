@@ -131,11 +131,6 @@ final class SuggestionViewModel: ObservableObject {
     
     // MARK: - Formatting Helper
     private func formatAmount(_ amount: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = "."
-        formatter.maximumFractionDigits = 0
-        let formatted = formatter.string(from: NSNumber(value: abs(amount))) ?? "0"
-        return "\(amount < 0 ? "-" : "")Rp \(formatted)"
+        CurrencyFormatter.format(amount)
     }
 }

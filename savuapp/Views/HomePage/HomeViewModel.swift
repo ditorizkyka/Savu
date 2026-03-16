@@ -43,6 +43,18 @@ final class HomeViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+
+        // Poll every 60 seconds so we catch the 8 PM crossover while the app is open
+        Timer.publish(every: 60, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                let hour = Calendar.current.component(.hour, from: Date())
+                let minute = Calendar.current.component(.minute, from: Date())
+                print("🕐 [AutoGen Timer] Tick — current time: \(hour):\(String(format: "%02d", minute))")
+                Task { await self.triggerAutoGenerationIfNeeded() }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - User Data
@@ -65,9 +77,9 @@ final class HomeViewModel: ObservableObject {
     var totalExpense: Double { store.totalExpense }
     var totalBalance: Double { store.totalBalance }
 
-    var formattedBalance: String { formatRupiah(totalBalance) }
-    var formattedIncome: String { formatRupiah(totalIncome) }
-    var formattedExpense: String { formatRupiah(totalExpense) }
+    var formattedBalance: String { CurrencyFormatter.format(totalBalance) }
+    var formattedIncome: String { CurrencyFormatter.format(totalIncome) }
+    var formattedExpense: String { CurrencyFormatter.format(totalExpense) }
 
     var recentTransactions: [StoredTransaction] { store.recentTransactions }
 
@@ -81,8 +93,73 @@ final class HomeViewModel: ObservableObject {
         return "exclamationmark.triangle.fill"
     }
 
+    /// True only if AI-generated suggestion cards exist AND were generated today.
     var hasSuggestion: Bool {
-        return totalIncome > 0 || totalExpense > 0
+        guard
+            let lastDate = UserDefaults.standard.object(forKey: "savu_last_generated_date") as? Date,
+            Calendar.current.isDateInToday(lastDate),
+            let data = UserDefaults.standard.data(forKey: "savu_daily_cards_cache"),
+            let cards = try? JSONDecoder().decode([WrapCard].self, from: data),
+            !cards.isEmpty
+        else { return false }
+        return true
+    }
+
+    /// True if there is at least one transaction recorded today.
+    var hasTransactionsToday: Bool {
+        store.transactions.contains {
+            Calendar.current.isDateInToday($0.date)
+        }
+    }
+
+    // MARK: - 8 PM Auto-Generation
+
+    private let dailyCardsCacheKey = "savu_daily_cards_cache"
+    private let lastGeneratedDateKey = "savu_last_generated_date"
+
+    /// Called on every foreground event. Silently generates suggestions if:
+    ///   - The current time is 8 PM or later
+    ///   - Today has at least one transaction
+    ///   - No suggestion has been generated and cached today yet
+    func triggerAutoGenerationIfNeeded() async {
+        let now = Date()
+        let hour = Calendar.current.component(.hour, from: now)
+        let minute = Calendar.current.component(.minute, from: now)
+        print("🔍 [AutoGen] Checking conditions at \(hour):\(String(format: "%02d", minute))…")
+
+        guard hour >= 20 else {
+            print("⛔️ [AutoGen] Too early — hour is \(hour), need >= 20 (8 PM). Skipping.")
+            return
+        }
+        guard hasTransactionsToday else {
+            print("⛔️ [AutoGen] No transactions today. Skipping.")
+            return
+        }
+        guard !hasSuggestion else {
+            print("⛔️ [AutoGen] Suggestion already cached for today. Skipping.")
+            return
+        }
+
+        print("⏰ [AutoGen] All conditions met — generating suggestions in background…")
+        do {
+            let engine = SuggestionEngine()
+            print("🤖 [AutoGen] Calling SuggestionEngine.generate()…")
+            let cards = try await engine.generate(transactionStore: store, userStore: userStore)
+            print("📦 [AutoGen] Engine returned \(cards.count) card(s).")
+            guard !cards.isEmpty else {
+                print("⚠️ [AutoGen] Engine returned empty cards — no transactions today? Skipping cache.")
+                return
+            }
+            let reversed = Array(cards.reversed())
+            if let encoded = try? JSONEncoder().encode(reversed) {
+                UserDefaults.standard.set(encoded, forKey: dailyCardsCacheKey)
+                UserDefaults.standard.set(Date(), forKey: lastGeneratedDateKey)
+                print("✅ [AutoGen] Saved \(reversed.count) cards to cache. UI will refresh.")
+            }
+            objectWillChange.send()
+        } catch {
+            print("❌ [AutoGen] Generation failed: \(error.localizedDescription)")
+        }
     }
 
     var suggestionMessage: String {
@@ -176,18 +253,5 @@ final class HomeViewModel: ObservableObject {
         }.reduce(0.0) { $0 + $1.amount }
     }
 
-    var formattedTotalMonthExpense: String { formatRupiah(totalMonthExpense) }
-
-    // MARK: - Helpers
-
-    private func formatRupiah(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = "."
-        formatter.decimalSeparator = ","
-        formatter.maximumFractionDigits = 0
-        let formatted = formatter.string(from: NSNumber(value: abs(value))) ?? "0"
-        let prefix = value < 0 ? "-" : ""
-        return "\(prefix)Rp \(formatted)"
-    }
+    var formattedTotalMonthExpense: String { CurrencyFormatter.format(totalMonthExpense) }
 }

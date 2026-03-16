@@ -5,14 +5,21 @@ struct savuappApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var userStore = UserStore.shared
     @StateObject private var themeManager = ThemeManager.shared
+    @State private var showSplash = true
 
     var body: some Scene {
         WindowGroup {
             Group {
-                if appState.isOnboardingComplete {
-                    MainTabView()
+                if showSplash {
+                    SplashScreenView {
+                        showSplash = false
+                    }
                 } else {
-                    OnboardingView()
+                    if appState.isOnboardingComplete {
+                        MainTabView()
+                    } else {
+                        OnboardingView()
+                    }
                 }
             }
             .environmentObject(appState)
@@ -21,9 +28,7 @@ struct savuappApp: App {
             .preferredColorScheme(themeManager.colorScheme)
             .onAppear {
                 UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
-                if ProfileViewModel().notificationsEnabled {
-                    AppNotificationManager.shared.requestPermission()
-                }
+                AppNotificationManager.shared.requestPermissionIfNeeded()
             }
         }
     }
